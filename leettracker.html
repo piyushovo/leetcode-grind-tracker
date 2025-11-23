@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LeetCode Grind Tracker 👑</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #1a1a1a; color: #fff; margin: 0; padding: 20px; max-width: 800px; margin: auto; }
+        h1 { text-align: center; color: #ffd700; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #333; border-radius: 8px; background: #2a2a2a; }
+        input { width: 50px; margin: 0 5px; padding: 5px; background: #444; color: #fff; border: 1px solid #666; border-radius: 4px; }
+        button { padding: 8px 16px; background: #ffd700; color: #000; border: none; border-radius: 4px; cursor: pointer; margin: 5px; }
+        button:hover { background: #ffed4a; }
+        table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+        th, td { border: 1px solid #666; padding: 8px; text-align: center; }
+        .alert { padding: 10px; margin: 10px 0; border-radius: 4px; }
+        .die { background: #ff4444; color: #fff; }
+        .king { background: #44ff44; color: #000; }
+        .under { background: #ffaa00; color: #000; }
+    </style>
+</head>
+<body>
+    <h1>LeetCode Grind Tracker 👑</h1>
+    <p style="text-align: center;">Started: Nov 23, 2025 | Target: 184E / 382M / 142H by Feb 2026 | Weekly Min: 32 (30 OK, <28 DIE)</p>
+
+    <!-- Daily Log Form -->
+    <div class="section">
+        <h2>📝 Log Today's Grind</h2>
+        <form id="logForm">
+            <label>E: <input type="number" id="eInput" min="0" value="0"></label>
+            <label>M: <input type="number" id="mInput" min="0" value="0"></label>
+            <label>H: <input type="number" id="hInput" min="0" value="0"></label>
+            <button type="submit">Log It 🔥</button>
+            <button type="button" onclick="resetData()">Reset All Data</button>
+        </form>
+        <div id="dailyAlert"></div>
+    </div>
+
+    <!-- Current Day Quota -->
+    <div class="section">
+        <h2>📊 Today's Quota (<span id="currentDay"></span>)</h2>
+        <table id="dailyQuotaTable">
+            <tr><th>Type</th><th>Min-Max</th></tr>
+        </table>
+    </div>
+
+    <!-- Progress Tables -->
+    <div class="section">
+        <h2>🏆 Cumulative Progress</h2>
+        <table id="cumulativeTable">
+            <tr><th>E</th><th>M</th><th>H</th><th>Total</th></tr>
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>📈 Last Week Summary</h2>
+        <div id="weeklySummary"></div>
+    </div>
+
+    <div class="section">
+        <h2>🔮 14-Week Projection</h2>
+        <div id="projection"></div>
+    </div>
+
+    <div class="section">
+        <h2>📋 Full Log</h2>
+        <table id="fullLogTable">
+            <thead><tr><th>Date</th><th>Day</th><th>E</th><th>M</th><th>H</th><th>Total</th><th>Notes</th></tr></thead>
+            <tbody id="logBody"></tbody>
+        </table>
+    </div>
+
+    <script>
+        // Config (your exact rules)
+        const START_COUNTS = { E: 100, M: 130, H: 30 };
+        const START_DATE = new Date('2025-11-23');
+        const WEEKS_AHEAD = 14;
+        const DAILY_QUOTAS = {
+            'Sun': { total: {min:6, max:7}, breakdown: {E: [1,2], M: 3, H: 2} },
+            'Mon': { total: {min:5, max:5}, breakdown: {E:1, M:3, H:1} },
+            'Tue': { total: {min:4, max:4}, breakdown: {E:1, M:2, H:1} },
+            'Wed': { total: {min:5, max:5}, breakdown: {E:1, M:3, H:1} },
+            'Thu': { total: {min:4, max:4}, breakdown: {E:1, M:2, H:1} },
+            'Fri': { total: {min:2, max:3}, breakdown: {E:0, M:[1,2], H:1} },
+            'Sat': { total: {min:6, max:6}, breakdown: {E:1, M:4, H:1} }
+        };
+        const WEEKLY_TARGET = { E: [6,7], M: [18,19], H: 8, total: [32,34] };
+        const MIN_WEEKLY = 30;
+        const DIE_THRESHOLD = 28;
+        const EASY_TAX = 1; // Extra H per E
+
+        // LocalStorage key
+        const STORAGE_KEY = 'leetcode_grind_log';
+
+        // Load/Save data
+        function loadLog() {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            return saved ? JSON.parse(saved) : [];
+        }
+        function saveLog(log) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(log));
+        }
+
+        // Get current date/day
+        function getToday() {
+            const now = new Date();
+            now.setHours(0,0,0,0); // Normalize to start of day
+            return now;
+        }
+        function getDayName(date) {
+            return date.toLocaleDateString('en-US', { weekday: 'short' });
+        }
+
+        // Check daily quota
+        function checkDailyQuota(dayName, e, m, h) {
+            const quota = DAILY_QUOTAS[dayName];
+            const total = e + m + h;
+            let alert = '';
+            if (total < quota.total.min) {
+                alert = `<div class="alert under">⚠️ UNDER: ${total} < ${quota.total.min}</div>`;
+            } else if (total > quota.total.max) {
+                alert = `<div class="alert king">🔥 OVERSHOT: ${total} > ${quota.total.max} — Add to H!</div>`;
+            } else {
+                alert = `<div class="alert king">✅ Quota Hit!</div>`;
+            }
+            // Breakdown warns
+            Object.keys(quota.breakdown).forEach(type => {
+                const solved = {E:e, M:m, H:h}[type];
+                const q = quota.breakdown[type];
+                if (Array.isArray(q)) {
+                    if (solved < q[0] || solved > q[1]) alert += `<div class="alert under">⚠️ ${type} off: ${solved} (quota ${q[0]}-${q[1]})</div>`;
+                } else if (solved !== q) {
+                    alert += `<div class="alert under">⚠️ ${type} off: ${solved} ≠ ${q}</div>`;
+                }
+            });
+            document.getElementById('dailyAlert').innerHTML = alert;
+        }
+
+        // Get week range (Mon-Sun)
+        function getCurrentWeek() {
+            const today = getToday();
+            const day = today.getDay(); // 0=Sun
+            const diff = (day === 0 ? -6 : 1 - day); // Mon start
+            const monday = new Date(today);
+            monday.setDate(today.getDate() + diff);
+            const sunday = new Date(monday);
+            sunday.setDate(monday.getDate() + 6);
+            return { start: monday, end: sunday };
+        }
+
+        // Check weekly
+        function checkWeekly() {
+            const log = loadLog();
+            const week = getCurrentWeek();
+            const weekLog = log.filter(entry => {
+                const d = new Date(entry.date);
+                return d >= week.start && d <= week.end;
+            });
+            if (weekLog.length < 7) return '<p>Week incomplete.</p>';
+
+            const sums = weekLog.reduce((acc, entry) => ({
+                E: acc.E + entry.E, M: acc.M + entry.M, H: acc.H + entry.H, total: acc.total + entry.total
+            }), {E:0, M:0, H:0, total:0});
+
+            let html = `<p>Last Week: E${sums.E}/${WEEKLY_TARGET.E[0]}-${WEEKLY_TARGET.E[1]} | M${sums.M}/${WEEKLY_TARGET.M[0]}-${WEEKLY_TARGET.M[1]} | H${sums.H}/${WEEKLY_TARGET.H} | Total${sums.total}/${WEEKLY_TARGET.total[0]}-${WEEKLY_TARGET.total[1]}</p>`;
+            let alertClass = '';
+            if (sums.total < MIN_WEEKLY) alertClass = 'under';
+            if (sums.total < DIE_THRESHOLD) alertClass = 'die';
+            if (alertClass) html += `<div class="alert ${alertClass}">⚠️ ${alertClass === 'die' ? '💀 DIE: <28' : 'UNDER: <30'}</div>`;
+
+            // Easy tax
+            const taxOwed = sums.E * EASY_TAX;
+            if (sums.H < taxOwed) html += `<div class="alert under">💸 Tax: ${sums.E}E → Owe ${taxOwed}H (did ${sums.H}) — Add ${taxOwed - sums.H} extra!</div>`;
+
+            if (sums.total >= WEEKLY_TARGET.total[0]) html += '<div class="alert king">👑 KING MODE!</div>';
+            return html;
+        }
+
+        // Cumulative & Projection
+        function getProgress() {
+            const log = loadLog();
+            const cum = log.reduce((acc, entry) => ({
+                E: acc.E + entry.E, M: acc.M + entry.M, H: acc.H + entry.H, total: acc.total + entry.total
+            }), {E:0, M:0, H:0, total:0});
+            const fullCum = { E: START_COUNTS.E + cum.E, M: START_COUNTS.M + cum.M, H: START_COUNTS.H + cum.H, total: START_COUNTS.E + START_COUNTS.M + START_COUNTS.H + cum.total };
+
+            const daysPassed = Math.ceil((getToday() - START_DATE) / (1000 * 60 * 60 * 24));
+            const weeksPassed = daysPassed / 7;
+            const remainingWeeks = WEEKS_AHEAD - weeksPassed;
+            const proj = {
+                E: fullCum.E + (WEEKLY_TARGET.E[1] * remainingWeeks),
+                M: fullCum.M + (WEEKLY_TARGET.M[1] * remainingWeeks),
+                H: fullCum.H + (WEEKLY_TARGET.H * remainingWeeks)
+            };
+
+            document.getElementById('cumulativeTable').innerHTML = `<tr><td>${fullCum.E}</td><td>${fullCum.M}</td><td>${fullCum.H}</td><td>${fullCum.total}</td></tr>`;
+            document.getElementById('projection').innerHTML = `<p>Projected End: ${Math.round(proj.E)}E / ${Math.round(proj.M)}M / ${Math.round(proj.H)}H</p>${proj.H >= 140 ? '<div class="alert king">🔥 SDE2 READY!</div>' : '<div class="alert under">⚠️ Push H to 140+!</div>'}`;
+        }
+
+        // Update UI
+        function updateUI() {
+            const today = getToday();
+            document.getElementById('currentDay').textContent = getDayName(today);
+            const quota = DAILY_QUOTAS[getDayName(today)];
+            let tableHTML = '<tr><th>Type</th><th>Min-Max</th></tr>';
+            Object.keys(quota.breakdown).forEach(type => {
+                const q = quota.breakdown[type];
+                const range = Array.isArray(q) ? `${q[0]}-${q[1]}` : q;
+                tableHTML += `<tr><td>${type}</td><td>${range}</td></tr>`;
+            });
+            tableHTML += `<tr><td>Total</td><td>${quota.total.min}-${quota.total.max}</td></tr>`;
+            document.getElementById('dailyQuotaTable').innerHTML = tableHTML;
+
+            document.getElementById('weeklySummary').innerHTML = checkWeekly();
+            getProgress();
+
+            // Full log table
+            const log = loadLog();
+            const tbody = document.getElementById('logBody');
+            tbody.innerHTML = '';
+            log.slice(-30).forEach(entry => { // Last 30 days
+                const row = `<tr><td>${entry.date}</td><td>${entry.day}</td><td>${entry.E}</td><td>${entry.M}</td><td>${entry.H}</td><td>${entry.total}</td><td>${entry.notes || ''}</td></tr>`;
+                tbody.innerHTML += row;
+            });
+        }
+
+        // Form submit
+        document.getElementById('logForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const eVal = parseInt(document.getElementById('eInput').value) || 0;
+            const mVal = parseInt(document.getElementById('mInput').value) || 0;
+            const hVal = parseInt(document.getElementById('hInput').value) || 0;
+            const today = getToday().toISOString().split('T')[0];
+            const dayName = getDayName(getToday());
+
+            const log = loadLog();
+            // Check if today already logged (update if yes)
+            const existing = log.find(entry => entry.date === today);
+            if (existing) {
+                existing.E = eVal; existing.M = mVal; existing.H = hVal; existing.total = eVal + mVal + hVal;
+            } else {
+                log.push({ date: today, day: dayName, E: eVal, M: mVal, H: hVal, total: eVal + mVal + hVal, notes: '' });
+                log.sort((a,b) => new Date(a.date) - new Date(b.date));
+            }
+            saveLog(log);
+
+            checkDailyQuota(dayName, eVal, mVal, hVal);
+            updateUI();
+            document.getElementById('logForm').reset();
+        });
+
+        // Reset
+        function resetData() {
+            if (confirm('Reset all logs?')) {
+                localStorage.removeItem(STORAGE_KEY);
+                updateUI();
+            }
+        }
+
+        // Init
+        updateUI();
+        setInterval(updateUI, 60000); // Refresh minutely
+    </script>
+</body>
+</html>
