@@ -1,397 +1,1643 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LeetCode Grind Tracker - DUMPYDON 👑</title>
-    <style>
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background: #1a1a1a; 
-            color: #fff; 
-            margin: 0; 
-            padding: 0; 
-            display: flex; 
-            height: 100vh; 
-            overflow: hidden;
-        }
-        .sidebar { 
-            width: 25%; 
-            background: #0d0d0d; 
-            padding: 20px; 
-            overflow-y: auto; 
-            border-right: 1px solid #333; 
-        }
-        .main { 
-            width: 75%; 
-            padding: 20px; 
-            overflow-y: auto; 
-        }
-        h1 { text-align: center; color: #ffd700; margin-bottom: 10px; }
-        h2 { color: #ffd700; }
-        .quote { 
-            font-style: italic; 
-            color: #ccc; 
-            margin: 10px 0; 
-            padding: 10px; 
-            background: #2a2a2a; 
-            border-radius: 4px; 
-        }
-        .schedule { 
-            background: #333; 
-            padding: 15px; 
-            border-radius: 4px; 
-            margin: 10px 0; 
-            font-size: 14px; 
-        }
-        .motivation { 
-            color: #ff6b6b; 
-            font-weight: bold; 
-            margin: 10px 0; 
-        }
-        .section { 
-            margin: 20px 0; 
-            padding: 15px; 
-            border: 1px solid #333; 
-            border-radius: 8px; 
-            background: #2a2a2a; 
-        }
-        button { 
-            padding: 8px 16px; 
-            background: #ffd700; 
-            color: #000; 
-            border: none; 
-            border-radius: 4px; 
-            cursor: pointer; 
-            margin: 5px; 
-            font-weight: bold;
-        }
-        button:hover { background: #ffed4a; }
-        .increment-btn { 
-            background: #4CAF50; 
-            color: white; 
-            padding: 10px 20px; 
-            font-size: 18px; 
-            width: 60px; 
-        }
-        .increment-btn:hover { background: #45a049; }
-        .reset-btn { 
-            background: #f44336; 
-            color: white; 
-            padding: 10px 20px; 
-        }
-        .reset-btn:hover { background: #da190b; }
-        .today-display { 
-            font-size: 24px; 
-            text-align: center; 
-            margin: 10px 0; 
-            padding: 15px; 
-            background: #333; 
-            border-radius: 4px; 
-        }
-        table { width: 100%; border-collapse: collapse; margin: 10px 0; }
-        th, td { border: 1px solid #666; padding: 8px; text-align: center; }
-        .alert { padding: 10px; margin: 10px 0; border-radius: 4px; }
-        .die { background: #ff4444; color: #fff; }
-        .king { background: #44ff44; color: #000; }
-        .under { background: #ffaa00; color: #000; }
-        @media (max-width: 768px) { 
-            body { flex-direction: column; } 
-            .sidebar { width: 100%; height: auto; } 
-            .main { width: 100%; } 
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DUMPYDON 👑 – LeetCode War Room</title>
+
+  <!-- Chart.js for simple visualizations -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    :root {
+      --bg: #050509;
+      --bg-alt: #111119;
+      --bg-card: #181825;
+      --bg-soft: #232338;
+      --accent: #ffd54a;
+      --accent-soft: rgba(255, 213, 74, 0.12);
+      --accent-strong: #ffbf00;
+      --danger: #ff4b4b;
+      --ok: #4caf50;
+      --warn: #ff9800;
+      --text: #f5f5f7;
+      --text-soft: #a8adb8;
+      --border-subtle: #26263a;
+      --radius-lg: 14px;
+      --radius-md: 10px;
+      --shadow-soft: 0 18px 40px rgba(0, 0, 0, 0.6);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+      "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #121229 0, #050509 45%, #000 100%);
+      color: var(--text);
+      height: 100vh;
+      display: flex;
+      overflow: hidden;
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: 270px minmax(0, 1fr);
+      width: 100%;
+      height: 100%;
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      border-right: 1px solid var(--border-subtle);
+      padding: 18px 16px;
+      background: linear-gradient(180deg, #050509, #080814);
+      overflow-y: auto;
+    }
+
+    .logo {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .logo-title {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .logo-badge {
+      padding: 3px 7px;
+      border-radius: 999px;
+      border: 1px solid var(--accent);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--accent-strong);
+    }
+
+    .sidebar-section {
+      margin-top: 18px;
+      padding: 12px;
+      border-radius: var(--radius-md);
+      background: rgba(12, 12, 20, 0.9);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .sidebar h2 {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--text-soft);
+      margin: 0 0 8px;
+    }
+
+    .quote {
+      font-size: 12px;
+      line-height: 1.5;
+      color: var(--text-soft);
+      padding: 8px 10px;
+      border-radius: var(--radius-md);
+      background: rgba(35, 35, 63, 0.8);
+      margin-bottom: 8px;
+    }
+
+    .schedule {
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .schedule strong {
+      color: var(--accent-strong);
+    }
+
+    .motivation {
+      display: block;
+      margin-top: 8px;
+      color: var(--danger);
+      font-weight: 600;
+      font-size: 12px;
+    }
+
+    .tiny-label {
+      display: inline-block;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--text-soft);
+      margin-bottom: 4px;
+    }
+
+    .target-pill {
+      margin-top: 8px;
+      padding: 6px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    .pill-key {
+      color: var(--accent-strong);
+      font-weight: 600;
+    }
+
+    .danger-text {
+      color: var(--danger);
+      font-weight: 600;
+    }
+
+    /* MAIN */
+    .main {
+      padding: 18px 20px;
+      overflow-y: auto;
+    }
+
+    .main-header {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .title-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: baseline;
+    }
+
+    .app-title {
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    .subtitle {
+      font-size: 12px;
+      color: var(--text-soft);
+    }
+
+    .date-chip {
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(20, 20, 34, 0.9);
+      border: 1px solid var(--border-subtle);
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    .chip-strong {
+      color: var(--accent-strong);
+      font-weight: 600;
+    }
+
+    .summary-row {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .stat-card {
+      background: rgba(18, 18, 30, 0.95);
+      border-radius: var(--radius-lg);
+      padding: 10px 12px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: var(--shadow-soft);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--text-soft);
+    }
+
+    .stat-value {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .stat-sub {
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    .stat-pill {
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      border: 1px solid var(--accent);
+      color: var(--accent-strong);
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      align-self: flex-start;
+      margin-top: 2px;
+    }
+
+    .stat-pill.bad {
+      border-color: var(--danger);
+      color: var(--danger);
+    }
+
+    .stat-pill.good {
+      border-color: var(--ok);
+      color: var(--ok);
+    }
+
+    /* Sections */
+    .section {
+      margin-top: 18px;
+      padding: 14px 14px 16px;
+      background: rgba(13, 13, 24, 0.96);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-subtle);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .section-title {
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--text-soft);
+    }
+
+    .section-sub {
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    /* TODAY CONTROLS */
+    .today-layout {
+      display: grid;
+      grid-template-columns: 2.2fr 1.3fr;
+      gap: 14px;
+    }
+
+    .today-display {
+      font-size: 16px;
+      text-align: center;
+      padding: 10px;
+      border-radius: var(--radius-md);
+      background: var(--bg-soft);
+      border: 1px solid var(--border-subtle);
+      margin-bottom: 10px;
+    }
+
+    .badge-day {
+      font-size: 11px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent-strong);
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+    }
+
+    .increment-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+
+    .increment-btn {
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: none;
+      background: #2e7d32;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      min-width: 64px;
+    }
+
+    .increment-btn span {
+      font-size: 11px;
+      opacity: 0.85;
+      margin-left: 4px;
+    }
+
+    .increment-btn:hover {
+      background: #43a047;
+    }
+
+    .decrement-btn {
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: transparent;
+      color: var(--text-soft);
+      font-size: 11px;
+      cursor: pointer;
+      min-width: 40px;
+    }
+
+    .decrement-btn:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .today-actions {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 4px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border-radius: 999px;
+      border: none;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      padding: 7px 10px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-soft);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .btn-ghost:hover {
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .btn-danger {
+      background: rgba(255, 75, 75, 0.12);
+      color: var(--danger);
+      border: 1px solid rgba(255, 75, 75, 0.6);
+    }
+
+    .btn-danger:hover {
+      background: rgba(255, 75, 75, 0.2);
+    }
+
+    .btn-accent {
+      background: var(--accent);
+      color: #000;
+    }
+
+    .btn-accent:hover {
+      background: var(--accent-strong);
+    }
+
+    .quota-card {
+      padding: 10px;
+      border-radius: var(--radius-md);
+      background: var(--bg-soft);
+      border: 1px solid var(--border-subtle);
+      font-size: 12px;
+    }
+
+    .quota-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 6px;
+      font-size: 12px;
+    }
+
+    .quota-table th,
+    .quota-table td {
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      padding: 4px 6px;
+      text-align: center;
+    }
+
+    .quota-table th {
+      font-weight: 500;
+      color: var(--text-soft);
+      background: rgba(0, 0, 0, 0.15);
+    }
+
+    .progress-bar-wrap {
+      margin-top: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.03);
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #ff9800, #ffd54a, #4caf50);
+      width: 0%;
+      transition: width 0.25s ease-out;
+    }
+
+    .alert {
+      margin-top: 6px;
+      padding: 6px 8px;
+      border-radius: var(--radius-md);
+      font-size: 12px;
+    }
+
+    .alert.die {
+      background: rgba(255, 75, 75, 0.14);
+      color: var(--danger);
+      border: 1px solid rgba(255, 75, 75, 0.7);
+    }
+
+    .alert.king {
+      background: rgba(76, 175, 80, 0.12);
+      color: var(--ok);
+      border: 1px solid rgba(76, 175, 80, 0.7);
+    }
+
+    .alert.under {
+      background: rgba(255, 152, 0, 0.12);
+      color: var(--warn);
+      border: 1px solid rgba(255, 152, 0, 0.7);
+    }
+
+    .alert + .alert {
+      margin-top: 4px;
+    }
+
+    /* LAYOUT / ANALYTICS */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.3fr);
+      gap: 14px;
+    }
+
+    .text-block {
+      font-size: 12px;
+      color: var(--text-soft);
+      line-height: 1.6;
+    }
+
+    .text-block p {
+      margin: 0 0 7px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+    }
+
+    .badge.ok {
+      background: rgba(76, 175, 80, 0.08);
+      color: var(--ok);
+      border: 1px solid rgba(76, 175, 80, 0.6);
+    }
+
+    .badge.warn {
+      background: rgba(255, 152, 0, 0.08);
+      color: var(--warn);
+      border: 1px solid rgba(255, 152, 0, 0.6);
+    }
+
+    .badge.bad {
+      background: rgba(255, 75, 75, 0.08);
+      color: var(--danger);
+      border: 1px solid rgba(255, 75, 75, 0.6);
+    }
+
+    .charts-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 10px;
+    }
+
+    .chart-card {
+      padding: 8px 10px 10px;
+      border-radius: var(--radius-md);
+      background: var(--bg-soft);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .chart-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--text-soft);
+      margin-bottom: 4px;
+    }
+
+    canvas {
+      max-width: 100%;
+    }
+
+    /* LOG TABLE */
+    .log-controls {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .log-controls-right {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .log-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+      margin-top: 4px;
+    }
+
+    .log-table th,
+    .log-table td {
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 5px 4px;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .log-table th {
+      font-weight: 500;
+      color: var(--text-soft);
+      background: rgba(0, 0, 0, 0.2);
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    .log-table tr:nth-child(even) {
+      background: rgba(255, 255, 255, 0.01);
+    }
+
+    .log-notes {
+      max-width: 220px;
+      text-align: left;
+      white-space: normal;
+    }
+
+    .log-empty {
+      font-size: 12px;
+      color: var(--text-soft);
+      text-align: center;
+      padding: 10px 0 2px;
+    }
+
+    .pill-small {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 999px;
+      font-size: 10px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+    }
+
+    .input-notes {
+      width: 100%;
+      border-radius: 6px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(0, 0, 0, 0.2);
+      color: var(--text);
+      font-size: 11px;
+      padding: 6px 8px;
+      resize: vertical;
+      min-height: 56px;
+      margin-top: 6px;
+      font-family: inherit;
+    }
+
+    .input-notes::placeholder {
+      color: rgba(255, 255, 255, 0.25);
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 1024px) {
+      .app {
+        grid-template-columns: 230px minmax(0, 1fr);
+      }
+
+      .summary-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .grid-2,
+      .today-layout {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      body {
+        overflow: auto;
+      }
+
+      .app {
+        display: block;
+        height: auto;
+      }
+
+      .sidebar {
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--border-subtle);
+      }
+
+      .main {
+        padding: 14px 12px 40px;
+      }
+
+      .summary-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+  </style>
 </head>
 <body>
-    <!-- Sidebar: Reminders & Schedule -->
-    <div class="sidebar">
-        <h2>Daily Rules 👑</h2>
-        <div class="quote">"You should be absolutely focused on what you do. Everything else is a waste of time."</div>
-        <div class="quote">"As the time goes by, An eye for an eye. We in this together, son, your beef is mine."</div>
-        
-        <div class="schedule">
-            <strong>Sun:</strong> 6-7. E{E}MMMHH<br>
-            <strong>Mon:</strong> 5. EMMMH<br>
-            <strong>Tue:</strong> 4. EMMH<br>
-            <strong>Wed:</strong> 5. EMMMH<br>
-            <strong>Thu:</strong> 4. EMMH<br>
-            <strong>Fri:</strong> 2-3. M{M}H<br>
-            <strong>Sat:</strong> 6. EMMMMH<br><br>
-            <strong>Weekly:</strong> 6-7E 18-19M 8H<br>
-            <strong>Monthly:</strong> 28E 75M 32H<br><br>
-            <span class="motivation">Total: 32-34/week. Min 30 (barely OK). Below 28? DIE.</span>
-        </div>
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-title">DUMPYDON</div>
+      <div class="logo-badge">LeetCode War Room</div>
     </div>
 
-    <!-- Main Content -->
-    <div class="main">
-        <h1>LeetCode Grind Tracker - DUMPYDON 👑</h1>
-        <p style="text-align: center;">Started: Nov 23, 2025 | Target: 184E / 382M / 142H by Feb 2026 | Weekly Min: 32 (30 OK, <28 DIE)</p>
+    <div class="sidebar-section">
+      <h2>Mindset</h2>
+      <div class="quote">
+        “You should be absolutely focused on what you do. Everything else is a waste of time.”
+      </div>
+      <div class="quote">
+        “As the time goes by, an eye for an eye. We in this together, son – your beef is mine.”
+      </div>
+    </div>
 
-        <!-- Today's Increment Buttons -->
-        <div class="section">
-            <h2>📝 Today's Grind (<span id="currentDay"></span>)</h2>
-            <div class="today-display" id="todayDisplay">Today's Solved: 0E 0M 0H</div>
-            <div style="text-align: center;">
-                <button class="increment-btn" onclick="increment('E')">+E</button>
-                <button class="increment-btn" onclick="increment('M')">+M</button>
-                <button class="increment-btn" onclick="increment('H')">+H</button>
-                <br><br>
-                <button class="reset-btn" onclick="resetToday()">Reset Today</button>
+    <div class="sidebar-section">
+      <h2>Schedule Rules</h2>
+      <div class="schedule">
+        <strong>Sun:</strong> 6–7 &mdash; E{E}MMMHH<br />
+        <strong>Mon:</strong> 5 &mdash; EMMMH<br />
+        <strong>Tue:</strong> 4 &mdash; EMMH<br />
+        <strong>Wed:</strong> 5 &mdash; EMMMH<br />
+        <strong>Thu:</strong> 4 &mdash; EMMH<br />
+        <strong>Fri:</strong> 2–3 &mdash; M{M}H<br />
+        <strong>Sat:</strong> 6 &mdash; EMMMMH<br /><br />
+        <strong>Weekly:</strong> 6–7E / 18–19M / 8H<br />
+        <strong>Monthly:</strong> 28E / 75M / 32H<br /><br />
+        <span class="motivation">
+          Total: 32–34 / week. Min 30 (barely OK). Below 28? 💀 <strong>DIE.</strong>
+        </span>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <h2>Targets</h2>
+      <div class="tiny-label">Campaign</div>
+      <div class="target-pill">
+        Started <span class="pill-key">23 Nov 2025</span><br />
+        Goal by Feb 2026:
+        <span class="pill-key">184E / 382M / 142H</span>
+      </div>
+
+      <div style="margin-top: 10px;">
+        <div class="tiny-label">Easy Tax</div>
+        <div class="target-pill">
+          Each <span class="pill-key">1E</span> ⇒ owe <span class="pill-key">+1H</span> over time.
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <!-- HEADER -->
+    <header class="main-header">
+      <div class="title-row">
+        <div>
+          <div class="app-title">LeetCode Grind Tracker 👑</div>
+          <div class="subtitle">
+            Pure LeetCode progress. No fluff. DSA-only accounting.
+          </div>
+        </div>
+        <div class="date-chip" id="dateChip">
+          Today: <span class="chip-strong" id="currentDayName">Loading...</span>
+        </div>
+      </div>
+
+      <div class="summary-row">
+        <div class="stat-card">
+          <div class="stat-label">Today's Total</div>
+          <div class="stat-value" id="todayTotalStat">0</div>
+          <div class="stat-sub" id="todayBreakdownStat">0E / 0M / 0H</div>
+          <div class="stat-pill" id="todayStatusPill">Waiting for grind</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Current Streak</div>
+          <div class="stat-value" id="currentStreak">0&nbsp;days</div>
+          <div class="stat-sub">
+            Best: <span id="bestStreak">0</span> days
+          </div>
+          <div class="stat-pill" id="streakPill">Cold start</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">This Week</div>
+          <div class="stat-value" id="weekTotalStat">0</div>
+          <div class="stat-sub" id="weekDetailStat">0E / 0M / 0H</div>
+          <div class="stat-pill" id="weekStatusPill">Week in progress</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Lifetime (incl. start)</div>
+          <div class="stat-value" id="lifetimeTotal">0</div>
+          <div class="stat-sub" id="lifetimeBreakdown">0E / 0M / 0H</div>
+          <div class="stat-pill">SDE2 campaign</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- TODAY SECTION -->
+    <section class="section">
+      <div class="section-header">
+        <div>
+          <div class="section-title">
+            Today’s Grind <span class="badge-day" id="badgeDay"></span>
+          </div>
+          <div class="section-sub">
+            Only count questions actually solved today on LeetCode.
+          </div>
+        </div>
+      </div>
+
+      <div class="today-layout">
+        <!-- Left: buttons, notes -->
+        <div>
+          <div class="today-display" id="todayDisplay">Today's Solved: 0E / 0M / 0H</div>
+
+          <div class="increment-row">
+            <button class="increment-btn" data-type="E">
+              +E <span>Easy</span>
+            </button>
+            <button class="increment-btn" data-type="M">
+              +M <span>Medium</span>
+            </button>
+            <button class="increment-btn" data-type="H">
+              +H <span>Hard</span>
+            </button>
+          </div>
+          <div class="increment-row">
+            <button class="decrement-btn" data-type="E">-E</button>
+            <button class="decrement-btn" data-type="M">-M</button>
+            <button class="decrement-btn" data-type="H">-H</button>
+          </div>
+
+          <div class="today-actions">
+            <button class="btn btn-danger" id="resetTodayBtn">Reset Today</button>
+            <div style="display: flex; gap: 6px;">
+              <button class="btn btn-ghost" id="copyBackupBtn">Backup (copy JSON)</button>
+              <button class="btn btn-ghost" id="resetAllBtn">Reset All</button>
+            </div>
+          </div>
+
+          <textarea
+            id="todayNotes"
+            class="input-notes"
+            placeholder="Optional: notes for today (problem list, contest, insights, etc.)"
+          ></textarea>
+          <button class="btn btn-accent" id="saveNotesBtn" style="margin-top: 6px;">
+            Save Today’s Notes
+          </button>
+        </div>
+
+        <!-- Right: quota info & alerts -->
+        <div>
+          <div class="quota-card">
+            <div class="tiny-label">Today's Quota</div>
+            <table class="quota-table" id="dailyQuotaTable">
+              <!-- Filled by JS -->
+            </table>
+            <div style="margin-top: 4px; font-size: 11px; color: var(--text-soft);">
+              <span id="quotaSummaryText"></span>
+            </div>
+            <div class="progress-bar-wrap">
+              <div class="progress-bar-fill" id="quotaProgress"></div>
             </div>
             <div id="dailyAlert"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ANALYTICS -->
+    <section class="section">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Weekly & Projection</div>
+          <div class="section-sub">
+            See weekly health, easy tax, and your 14-week trajectory.
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="text-block" id="weeklySummary">
+          <!-- JS fills -->
         </div>
 
-        <!-- Current Day Quota -->
-        <div class="section">
-            <h2>📊 Today's Quota</h2>
-            <table id="dailyQuotaTable">
-                <tr><th>Type</th><th>Min-Max</th></tr>
-            </table>
+        <div class="charts-grid">
+          <div class="chart-card">
+            <div class="chart-title">Last 14 Days – Total Problems</div>
+            <canvas id="dailyTotalsChart" height="120"></canvas>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title">This Week – Difficulty Split</div>
+            <canvas id="difficultyChart" height="120"></canvas>
+          </div>
         </div>
+      </div>
 
-        <!-- Progress Tables -->
-        <div class="section">
-            <h2>🏆 Cumulative Progress</h2>
-            <table id="cumulativeTable">
-                <tr><th>E</th><th>M</th><th>H</th><th>Total</th></tr>
-            </table>
+      <div style="margin-top: 10px;" id="projection">
+        <!-- projection text + alert -->
+      </div>
+    </section>
+
+    <!-- LOG -->
+    <section class="section">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Logbook</div>
+          <div class="section-sub">
+            Last 30 days of war. LeetCode-only. No shortcuts.
+          </div>
         </div>
+      </div>
 
-        <div class="section">
-            <h2>📈 Last Week Summary</h2>
-            <div id="weeklySummary"></div>
+      <div class="log-controls">
+        <div class="pill-small">
+          Viewing: <span id="logRangeLabel">Last 30 days</span>
         </div>
-
-        <div class="section">
-            <h2>🔮 14-Week Projection</h2>
-            <div id="projection"></div>
+        <div class="log-controls-right">
+          <button class="btn btn-ghost" id="logShow30">Last 30</button>
+          <button class="btn btn-ghost" id="logShowAll">All</button>
         </div>
+      </div>
 
-        <div class="section">
-            <h2>📋 Full Log</h2>
-            <table id="fullLogTable">
-                <thead><tr><th>Date</th><th>Day</th><th>E</th><th>M</th><th>H</th><th>Total</th><th>Notes</th></tr></thead>
-                <tbody id="logBody"></tbody>
-            </table>
+      <div style="max-height: 260px; overflow-y: auto;">
+        <table class="log-table">
+          <thead>
+          <tr>
+            <th>Date</th>
+            <th>Day</th>
+            <th>E</th>
+            <th>M</th>
+            <th>H</th>
+            <th>Total</th>
+            <th>Notes</th>
+          </tr>
+          </thead>
+          <tbody id="logBody"></tbody>
+        </table>
+        <div class="log-empty" id="logEmptyMsg" style="display:none;">
+          No grind logged yet. First blood is waiting.
         </div>
-    </div>
+      </div>
+    </section>
+  </main>
+</div>
 
-    <script>
-        // Config (your exact rules)
-        const START_COUNTS = { E: 100, M: 130, H: 30 };
-        const START_DATE = new Date('2025-11-23');
-        const WEEKS_AHEAD = 14;
-        const DAILY_QUOTAS = {
-            'Sun': { total: {min:6, max:7}, breakdown: {E: [1,2], M: 3, H: 2} },
-            'Mon': { total: {min:5, max:5}, breakdown: {E:1, M:3, H:1} },
-            'Tue': { total: {min:4, max:4}, breakdown: {E:1, M:2, H:1} },
-            'Wed': { total: {min:5, max:5}, breakdown: {E:1, M:3, H:1} },
-            'Thu': { total: {min:4, max:4}, breakdown: {E:1, M:2, H:1} },
-            'Fri': { total: {min:2, max:3}, breakdown: {E:0, M:[1,2], H:1} },
-            'Sat': { total: {min:6, max:6}, breakdown: {E:1, M:4, H:1} }
-        };
-        const WEEKLY_TARGET = { E: [6,7], M: [18,19], H: 8, total: [32,34] };
-        const MIN_WEEKLY = 30;
-        const DIE_THRESHOLD = 28;
-        const EASY_TAX = 1; // Extra H per E
+<script>
+  // === CONFIG (copied from your original logic where possible) ===
+  const START_COUNTS = { E: 100, M: 130, H: 30 };
+  const START_DATE = new Date("2025-11-23");
+  const WEEKS_AHEAD = 14;
 
-        // LocalStorage key
-        const STORAGE_KEY = 'leetcode_grind_log';
+  const DAILY_QUOTAS = {
+    Sun: { total: { min: 6, max: 7 }, breakdown: { E: [1, 2], M: 3, H: 2 } },
+    Mon: { total: { min: 5, max: 5 }, breakdown: { E: 1, M: 3, H: 1 } },
+    Tue: { total: { min: 4, max: 4 }, breakdown: { E: 1, M: 2, H: 1 } },
+    Wed: { total: { min: 5, max: 5 }, breakdown: { E: 1, M: 3, H: 1 } },
+    Thu: { total: { min: 4, max: 4 }, breakdown: { E: 1, M: 2, H: 1 } },
+    Fri: { total: { min: 2, max: 3 }, breakdown: { E: 0, M: [1, 2], H: 1 } },
+    Sat: { total: { min: 6, max: 6 }, breakdown: { E: 1, M: 4, H: 1 } },
+  };
 
-        // Load/Save data
-        function loadLog() {
-            const saved = localStorage.getItem(STORAGE_KEY);
-            return saved ? JSON.parse(saved) : [];
+  const WEEKLY_TARGET = { E: [6, 7], M: [18, 19], H: 8, total: [32, 34] };
+  const MIN_WEEKLY = 30;
+  const DIE_THRESHOLD = 28;
+  const EASY_TAX = 1; // extra H per E over long term
+  const STREAK_MIN_PER_DAY = 1; // min problems to count in streak
+
+  const STORAGE_KEY = "leetcode_grind_log"; // same as your old app
+
+  // === STATE ===
+  let todayCounts = { E: 0, M: 0, H: 0 };
+  let todayNotes = "";
+  let showFullLog = false;
+  let dailyTotalsChart = null;
+  let difficultyChart = null;
+
+  // === UTILITIES ===
+  function getToday() {
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    return now;
+  }
+
+  function formatDate(date) {
+    return date.toISOString().split("T")[0];
+  }
+
+  function getDayName(date) {
+    return date.toLocaleDateString("en-US", { weekday: "short" });
+  }
+
+  function loadLog() {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (!saved) return [];
+    try {
+      const parsed = JSON.parse(saved);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      console.error("Failed to parse log:", e);
+      return [];
+    }
+  }
+
+  function saveLog(log) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(log));
+  }
+
+  function getOrCreateTodayEntry(log) {
+    const todayStr = formatDate(getToday());
+    let entry = log.find((e) => e.date === todayStr);
+    if (!entry) {
+      entry = {
+        date: todayStr,
+        day: getDayName(getToday()),
+        E: 0,
+        M: 0,
+        H: 0,
+        total: 0,
+        notes: "",
+      };
+      log.push(entry);
+      log.sort((a, b) => new Date(a.date) - new Date(b.date));
+    }
+    return entry;
+  }
+
+  // === INCREMENT / DECREMENT ===
+  function adjustCount(type, delta) {
+    const log = loadLog();
+    const entry = getOrCreateTodayEntry(log);
+
+    entry[type] = Math.max(0, (entry[type] || 0) + delta);
+    entry.total = (entry.E || 0) + (entry.M || 0) + (entry.H || 0);
+
+    saveLog(log);
+    updateUI();
+  }
+
+  // === TODAY DISPLAY ===
+  function updateTodayFromLog() {
+    const log = loadLog();
+    const todayStr = formatDate(getToday());
+    const entry = log.find((e) => e.date === todayStr);
+    todayCounts = entry
+      ? { E: entry.E, M: entry.M, H: entry.H }
+      : { E: 0, M: 0, H: 0 };
+    todayNotes = entry?.notes || "";
+  }
+
+  function updateTodayDisplay() {
+    updateTodayFromLog();
+
+    const total = todayCounts.E + todayCounts.M + todayCounts.H;
+    const todayDisplay = document.getElementById("todayDisplay");
+    const todayTotalStat = document.getElementById("todayTotalStat");
+    const todayBreakdownStat = document.getElementById("todayBreakdownStat");
+    const todayStatusPill = document.getElementById("todayStatusPill");
+    const todayNotesArea = document.getElementById("todayNotes");
+
+    todayDisplay.textContent = `Today's Solved: ${todayCounts.E}E / ${todayCounts.M}M / ${todayCounts.H}H`;
+    todayTotalStat.textContent = total;
+    todayBreakdownStat.textContent = `${todayCounts.E}E / ${todayCounts.M}M / ${todayCounts.H}H`;
+
+    todayNotesArea.value = todayNotes;
+
+    if (total === 0) {
+      todayStatusPill.textContent = "Waiting for grind";
+      todayStatusPill.classList.remove("good", "bad");
+    } else if (total < 4) {
+      todayStatusPill.textContent = "Warm-up";
+      todayStatusPill.classList.remove("bad");
+      todayStatusPill.classList.add("good");
+    } else if (total >= 4 && total < 7) {
+      todayStatusPill.textContent = "Solid session";
+      todayStatusPill.classList.add("good");
+      todayStatusPill.classList.remove("bad");
+    } else {
+      todayStatusPill.textContent = "Overkill mode";
+      todayStatusPill.classList.add("good");
+      todayStatusPill.classList.remove("bad");
+    }
+  }
+
+  function resetToday() {
+    if (!confirm("Reset today's counts and notes?")) return;
+    const log = loadLog();
+    const todayStr = formatDate(getToday());
+    const index = log.findIndex((e) => e.date === todayStr);
+    if (index !== -1) {
+      log.splice(index, 1);
+      saveLog(log);
+    }
+    todayCounts = { E: 0, M: 0, H: 0 };
+    todayNotes = "";
+    updateUI();
+  }
+
+  function saveTodayNotes() {
+    const log = loadLog();
+    const entry = getOrCreateTodayEntry(log);
+    const notesValue = document.getElementById("todayNotes").value || "";
+    entry.notes = notesValue;
+    todayNotes = notesValue;
+    saveLog(log);
+    updateUI();
+  }
+
+  function resetAllData() {
+    if (
+      !confirm(
+        "Reset ALL LeetCode grind data? This is permanent and cannot be undone."
+      )
+    )
+      return;
+    localStorage.removeItem(STORAGE_KEY);
+    todayCounts = { E: 0, M: 0, H: 0 };
+    todayNotes = "";
+    updateUI();
+  }
+
+  // === DAILY QUOTA & ALERTS ===
+  function checkDailyQuotaUI() {
+    const today = getToday();
+    const dayName = getDayName(today);
+    const quota = DAILY_QUOTAS[dayName];
+    const dailyAlert = document.getElementById("dailyAlert");
+    const quotaSummaryText = document.getElementById("quotaSummaryText");
+    const progressBar = document.getElementById("quotaProgress");
+    const dailyQuotaTable = document.getElementById("dailyQuotaTable");
+
+    document.getElementById("currentDayName").textContent = dayName;
+    document.getElementById("badgeDay").textContent = dayName;
+
+    // Build quota table
+    let tableHTML = `
+      <tr><th>Type</th><th>Min-Max</th></tr>
+    `;
+    Object.keys(quota.breakdown).forEach((type) => {
+      const q = quota.breakdown[type];
+      const range = Array.isArray(q) ? `${q[0]}-${q[1]}` : q;
+      tableHTML += `<tr><td>${type}</td><td>${range}</td></tr>`;
+    });
+    tableHTML += `<tr><td>Total</td><td>${quota.total.min}-${quota.total.max}</td></tr>`;
+    dailyQuotaTable.innerHTML = tableHTML;
+
+    const e = todayCounts.E;
+    const m = todayCounts.M;
+    const h = todayCounts.H;
+    const total = e + m + h;
+
+    // Progress %
+    const pct = Math.min(
+      100,
+      Math.round((total / quota.total.max) * 100 || 0)
+    );
+    progressBar.style.width = pct + "%";
+
+    quotaSummaryText.textContent = `You are at ${total}/${quota.total.min}–${quota.total.max} today. ${pct}% of upper target.`;
+
+    let html = "";
+    let alertClass = "";
+
+    if (total < quota.total.min) {
+      alertClass = "under";
+      html += `<div class="alert under">⚠️ UNDER: ${total} < ${quota.total.min}. No mercy. Keep going.</div>`;
+    } else if (total > quota.total.max) {
+      alertClass = "king";
+      html += `<div class="alert king">🔥 OVERSHOT: ${total} > ${quota.total.max} — funnel extra power into H over the week.</div>`;
+    } else {
+      alertClass = "king";
+      html += `<div class="alert king">✅ Daily quota hit. You can stop, but KINGs don't.</div>`;
+    }
+
+    Object.keys(quota.breakdown).forEach((type) => {
+      const solved = { E: e, M: m, H: h }[type];
+      const q = quota.breakdown[type];
+      if (Array.isArray(q)) {
+        if (solved < q[0] || solved > q[1]) {
+          html += `<div class="alert under">⚠️ ${type} off: ${solved} (quota ${q[0]}–${q[1]}).</div>`;
         }
-        function saveLog(log) {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(log));
+      } else if (solved !== q) {
+        html += `<div class="alert under">⚠️ ${type} off: ${solved} ≠ ${q}.</div>`;
+      }
+    });
+
+    dailyAlert.innerHTML = html;
+  }
+
+  // === WEEKLY / STREAK / PROJECTION ===
+  function getCurrentWeekRange() {
+    const today = getToday();
+    const day = today.getDay(); // 0=Sun
+    const diff = day === 0 ? -6 : 1 - day; // Monday start
+    const monday = new Date(today);
+    monday.setDate(today.getDate() + diff);
+    monday.setHours(0, 0, 0, 0);
+
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+    sunday.setHours(23, 59, 59, 999);
+    return { start: monday, end: sunday };
+  }
+
+  function computeWeekSums(log) {
+    const { start, end } = getCurrentWeekRange();
+    const weekEntries = log.filter((entry) => {
+      const d = new Date(entry.date);
+      return d >= start && d <= end;
+    });
+    const sums = weekEntries.reduce(
+      (acc, entry) => {
+        acc.E += entry.E || 0;
+        acc.M += entry.M || 0;
+        acc.H += entry.H || 0;
+        acc.total += entry.total || 0;
+        return acc;
+      },
+      { E: 0, M: 0, H: 0, total: 0 }
+    );
+    return { sums, weekEntries };
+  }
+
+  function updateWeeklySummary() {
+    const log = loadLog();
+    const weeklySummaryDiv = document.getElementById("weeklySummary");
+    const { sums, weekEntries } = computeWeekSums(log);
+
+    const weekTotalStat = document.getElementById("weekTotalStat");
+    const weekDetailStat = document.getElementById("weekDetailStat");
+    const weekStatusPill = document.getElementById("weekStatusPill");
+
+    weekTotalStat.textContent = sums.total;
+    weekDetailStat.textContent = `${sums.E}E / ${sums.M}M / ${sums.H}H`;
+
+    let pillText = "Week in progress";
+    let pillClass = "stat-pill";
+    if (sums.total >= WEEKLY_TARGET.total[0]) {
+      pillText = "KING mode";
+    } else if (sums.total < MIN_WEEKLY) {
+      pillText = "Below minimum";
+      pillClass += " bad";
+    }
+
+    weekStatusPill.textContent = pillText;
+
+    let html = "";
+    const daysCounted = weekEntries.length;
+    html += `<p>Week progress: ${daysCounted}/7 days logged.</p>`;
+    html += `<p>
+      Weekly target: 
+      <strong>${WEEKLY_TARGET.total[0]}–${WEEKLY_TARGET.total[1]}</strong> total |
+      You: <strong>${sums.total}</strong> &mdash;
+      E${sums.E}/${WEEKLY_TARGET.E[0]}–${WEEKLY_TARGET.E[1]},
+      M${sums.M}/${WEEKLY_TARGET.M[0]}–${WEEKLY_TARGET.M[1]},
+      H${sums.H}/${WEEKLY_TARGET.H}.
+    </p>`;
+
+    // Under / DIE alerts
+    if (sums.total < MIN_WEEKLY) {
+      html += `<p><span class="badge bad">UNDER 30</span> Push volume before week ends.</p>`;
+    }
+    if (sums.total < DIE_THRESHOLD) {
+      html += `<p><span class="badge bad">💀 DIE ZONE (&lt;28)</span> – this week doesn't count as grind.</p>`;
+    }
+    if (sums.total >= WEEKLY_TARGET.total[0]) {
+      html += `<p><span class="badge ok">👑 KING MODE</span> You cleared weekly vol. Now optimize depth.</p>`;
+    }
+
+    // Easy tax
+    const taxOwed = sums.E * EASY_TAX;
+    if (sums.H < taxOwed) {
+      const need = taxOwed - sums.H;
+      html += `<p><span class="badge warn">Easy tax</span> ${sums.E}E → owe ${taxOwed}H. You did ${sums.H}H. Missing <strong>${need}H</strong>.</p>`;
+    } else {
+      html += `<p><span class="badge ok">Easy tax paid</span> H is keeping up with Easy farming.</p>`;
+    }
+
+    weeklySummaryDiv.innerHTML = html;
+  }
+
+  function computeStreaks() {
+    const log = loadLog();
+    if (!log.length) {
+      return { current: 0, best: 0 };
+    }
+
+    // map date -> total
+    const map = new Map();
+    log.forEach((entry) => {
+      map.set(entry.date, entry.total || 0);
+    });
+
+    // current streak: count backwards from today
+    let currentStreak = 0;
+    let cursor = new Date(getToday());
+    while (true) {
+      const key = formatDate(cursor);
+      const total = map.get(key);
+      if (total && total >= STREAK_MIN_PER_DAY) {
+        currentStreak++;
+        cursor.setDate(cursor.getDate() - 1);
+      } else {
+        break;
+      }
+    }
+
+    // best streak: scan sorted
+    const sorted = [...log].sort(
+      (a, b) => new Date(a.date) - new Date(b.date)
+    );
+    let bestStreak = 0;
+    let streak = 0;
+    let prevDate = null;
+
+    for (const entry of sorted) {
+      if ((entry.total || 0) < STREAK_MIN_PER_DAY) {
+        streak = 0;
+        prevDate = null;
+        continue;
+      }
+
+      const currentDate = new Date(entry.date);
+      if (prevDate) {
+        const diffDays =
+          (currentDate - prevDate) / (1000 * 60 * 60 * 24);
+        if (diffDays === 1) {
+          streak++;
+        } else {
+          streak = 1;
         }
+      } else {
+        streak = 1;
+      }
 
-        // Get current date/day
-        function getToday() {
-            const now = new Date();
-            now.setHours(0,0,0,0); // Normalize to start of day
-            return now;
-        }
-        function getDayName(date) {
-            return date.toLocaleDateString('en-US', { weekday: 'short' });
-        }
+      prevDate = currentDate;
+      bestStreak = Math.max(bestStreak, streak);
+    }
 
-        // Increment function
-        let todayCounts = { E: 0, M: 0, H: 0 };
-        function increment(type) {
-            const today = getToday().toISOString().split('T')[0];
-            const log = loadLog();
-            const existing = log.find(entry => entry.date === today);
-            if (existing) {
-                existing[type]++;
-                existing.total = existing.E + existing.M + existing.H;
-            } else {
-                const newEntry = { date: today, day: getDayName(getToday()), E: 0, M: 0, H: 0, total: 0, notes: '' };
-                newEntry[type]++;
-                newEntry.total = newEntry.E + newEntry.M + newEntry.H;
-                log.push(newEntry);
-                log.sort((a,b) => new Date(a.date) - new Date(b.date));
-            }
-            saveLog(log);
-            updateTodayDisplay();
-            checkDailyQuota(getDayName(getToday()), todayCounts.E, todayCounts.M, todayCounts.H); // Update alert
-            updateUI();
-        }
+    return { current: currentStreak, best: bestStreak };
+  }
 
-        // Update today's display
-        function updateTodayDisplay() {
-            const today = getToday().toISOString().split('T')[0];
-            const log = loadLog();
-            const entry = log.find(e => e.date === today);
-            todayCounts = entry ? { E: entry.E, M: entry.M, H: entry.H } : { E: 0, M: 0, H: 0 };
-            document.getElementById('todayDisplay').textContent = `Today's Solved: ${todayCounts.E}E ${todayCounts.M}M ${todayCounts.H}H`;
-        }
+  function updateStreakUI() {
+    const { current, best } = computeStreaks();
+    const currentStreakEl = document.getElementById("currentStreak");
+    const bestStreakEl = document.getElementById("bestStreak");
+    const streakPill = document.getElementById("streakPill");
 
-        // Reset today
-        function resetToday() {
-            if (confirm('Reset today\'s counts?')) {
-                const today = getToday().toISOString().split('T')[0];
-                let log = loadLog();
-                log = log.filter(entry => entry.date !== today);
-                saveLog(log);
-                todayCounts = { E: 0, M: 0, H: 0 };
-                document.getElementById('todayDisplay').textContent = `Today's Solved: 0E 0M 0H`;
-                updateUI();
-            }
-        }
+    currentStreakEl.textContent = `${current} days`;
+    bestStreakEl.textContent = best;
 
-        // Check daily quota
-        function checkDailyQuota(dayName, e, m, h) {
-            const quota = DAILY_QUOTAS[dayName];
-            const total = e + m + h;
-            let alert = '';
-            if (total < quota.total.min) {
-                alert = `<div class="alert under">⚠️ UNDER: ${total} < ${quota.total.min}</div>`;
-            } else if (total > quota.total.max) {
-                alert = `<div class="alert king">🔥 OVERSHOT: ${total} > ${quota.total.max} — Add to H!</div>`;
-            } else {
-                alert = `<div class="alert king">✅ Quota Hit!</div>`;
-            }
-            // Breakdown warns
-            Object.keys(quota.breakdown).forEach(type => {
-                const solved = {E:e, M:m, H:h}[type];
-                const q = quota.breakdown[type];
-                if (Array.isArray(q)) {
-                    if (solved < q[0] || solved > q[1]) alert += `<div class="alert under">⚠️ ${type} off: ${solved} (quota ${q[0]}-${q[1]})</div>`;
-                } else if (solved !== q) {
-                    alert += `<div class="alert under">⚠️ ${type} off: ${solved} ≠ ${q}</div>`;
-                }
-            });
-            document.getElementById('dailyAlert').innerHTML = alert;
-        }
+    streakPill.classList.remove("good", "bad");
+    if (current === 0) {
+      streakPill.textContent = "Cold start";
+    } else if (current < 3) {
+      streakPill.textContent = "Streak warming up";
+      streakPill.classList.add("good");
+    } else if (current < 7) {
+      streakPill.textContent = "Heat check";
+      streakPill.classList.add("good");
+    } else {
+      streakPill.textContent = "Unbroken arc";
+      streakPill.classList.add("good");
+    }
+  }
 
-        // Get week range (Mon-Sun)
-        function getCurrentWeek() {
-            const today = getToday();
-            const day = today.getDay(); // 0=Sun
-            const diff = (day === 0 ? -6 : 1 - day); // Mon start
-            const monday = new Date(today);
-            monday.setDate(today.getDate() + diff);
-            const sunday = new Date(monday);
-            sunday.setDate(monday.getDate() + 6);
-            return { start: monday, end: sunday };
-        }
+  function updateProjectionAndLifetime() {
+    const log = loadLog();
+    const cum = log.reduce(
+      (acc, entry) => {
+        acc.E += entry.E || 0;
+        acc.M += entry.M || 0;
+        acc.H += entry.H || 0;
+        acc.total += entry.total || 0;
+        return acc;
+      },
+      { E: 0, M: 0, H: 0, total: 0 }
+    );
 
-        // Check weekly
-        function checkWeekly() {
-            const log = loadLog();
-            const week = getCurrentWeek();
-            const weekLog = log.filter(entry => {
-                const d = new Date(entry.date);
-                return d >= week.start && d <= week.end;
-            });
-            if (weekLog.length < 7) return '<p>Week incomplete.</p>';
+    const fullCum = {
+      E: START_COUNTS.E + cum.E,
+      M: START_COUNTS.M + cum.M,
+      H: START_COUNTS.H + cum.H,
+      total:
+        START_COUNTS.E +
+        START_COUNTS.M +
+        START_COUNTS.H +
+        cum.total,
+    };
 
-            const sums = weekLog.reduce((acc, entry) => ({
-                E: acc.E + entry.E, M: acc.M + entry.M, H: acc.H + entry.H, total: acc.total + entry.total
-            }), {E:0, M:0, H:0, total:0});
+    const lifetimeTotalEl = document.getElementById("lifetimeTotal");
+    const lifetimeBreakdownEl = document.getElementById(
+      "lifetimeBreakdown"
+    );
 
-            let html = `<p>Last Week: E${sums.E}/${WEEKLY_TARGET.E[0]}-${WEEKLY_TARGET.E[1]} | M${sums.M}/${WEEKLY_TARGET.M[0]}-${WEEKLY_TARGET.M[1]} | H${sums.H}/${WEEKLY_TARGET.H} | Total${sums.total}/${WEEKLY_TARGET.total[0]}-${WEEKLY_TARGET.total[1]}</p>`;
-            let alertClass = '';
-            if (sums.total < MIN_WEEKLY) alertClass = 'under';
-            if (sums.total < DIE_THRESHOLD) alertClass = 'die';
-            if (alertClass) html += `<div class="alert ${alertClass}">⚠️ ${alertClass === 'die' ? '💀 DIE: <28' : 'UNDER: <30'}</div>`;
+    lifetimeTotalEl.textContent = fullCum.total;
+    lifetimeBreakdownEl.textContent = `${fullCum.E}E / ${fullCum.M}M / ${fullCum.H}H`;
 
-            // Easy tax
-            const taxOwed = sums.E * EASY_TAX;
-            if (sums.H < taxOwed) html += `<div class="alert under">💸 Tax: ${sums.E}E → Owe ${taxOwed}H (did ${sums.H}) — Add ${taxOwed - sums.H} extra!</div>`;
+    const daysPassed = Math.max(
+      0,
+      Math.ceil((getToday() - START_DATE) / (1000 * 60 * 60 * 24))
+    );
+    const weeksPassed = daysPassed / 7;
+    const remainingWeeks = Math.max(0, WEEKS_AHEAD - weeksPassed);
 
-            if (sums.total >= WEEKLY_TARGET.total[0]) html += '<div class="alert king">👑 KING MODE!</div>';
-            return html;
-        }
+    const proj = {
+      E: fullCum.E + WEEKLY_TARGET.E[1] * remainingWeeks,
+      M: fullCum.M + WEEKLY_TARGET.M[1] * remainingWeeks,
+      H: fullCum.H + WEEKLY_TARGET.H * remainingWeeks,
+    };
 
-        // Cumulative & Projection
-        function getProgress() {
-            const log = loadLog();
-            const cum = log.reduce((acc, entry) => ({
-                E: acc.E + entry.E, M: acc.M + entry.M, H: acc.H + entry.H, total: acc.total + entry.total
-            }), {E:0, M:0, H:0, total:0});
-            const fullCum = { E: START_COUNTS.E + cum.E, M: START_COUNTS.M + cum.M, H: START_COUNTS.H + cum.H, total: START_COUNTS.E + START_COUNTS.M + START_COUNTS.H + cum.total };
+    const projectionDiv = document.getElementById("projection");
+    const projH = Math.round(proj.H);
+    const msg =
+      projH >= 140
+        ? `<div class="alert king">🔥 H-projection: ~${projH}H — SDE2-ready difficulty volume.</div>`
+        : `<div class="alert under">⚠️ H-projection: ~${projH}H — push hard problems to cross 140+.</div>`;
 
-            const daysPassed = Math.ceil((getToday() - START_DATE) / (1000 * 60 * 60 * 24));
-            const weeksPassed = daysPassed / 7;
-            const remainingWeeks = WEEKS_AHEAD - weeksPassed;
-            const proj = {
-                E: fullCum.E + (WEEKLY_TARGET.E[1] * remainingWeeks),
-                M: fullCum.M + (WEEKLY_TARGET.M[1] * remainingWeeks),
-                H: fullCum.H + (WEEKLY_TARGET.H * remainingWeeks)
-            };
+    projectionDiv.innerHTML = `
+      <div class="text-block">
+        <p>
+          Based on your current grind and assuming you hit the <strong>UPPER</strong> weekly targets,
+          you’re projected to reach:
+        </p>
+        <p>
+          <strong>${Math.round(
+            proj.E
+          )}E / ${Math.round(proj.M)}M / ${projH}H</strong> by the end of the next ${Math.round(
+      remainingWeeks
+    )} weeks.
+        </p>
+      </div>
+      ${msg}
+    `;
+  }
 
-            document.getElementById('cumulativeTable').innerHTML = `<tr><td>${fullCum.E}</td><td>${fullCum.M}</td><td>${fullCum.H}</td><td>${fullCum.total}</td></tr>`;
-            document.getElementById('projection').innerHTML = `<p>Projected End: ${Math.round(proj.E)}E / ${Math.round(proj.M)}M / ${Math.round(proj.H)}H</p>${proj.H >= 140 ? '<div class="alert king">🔥 SDE2 READY!</div>' : '<div class="alert under">⚠️ Push H to 140+!</div>'}`;
-        }
+  // === CHARTS ===
+  function updateCharts() {
+    const log = loadLog();
 
-        // Update UI
-        function updateUI() {
-            const today = getToday();
-            document.getElementById('currentDay').textContent = getDayName(today);
-            const quota = DAILY_QUOTAS[getDayName(today)];
-            let tableHTML = '<tr><th>Type</th><th>Min-Max</th></tr>';
-            Object.keys(quota.breakdown).forEach(type => {
-                const q = quota.breakdown[type];
-                const range = Array.isArray(q) ? `${q[0]}-${q[1]}` : q;
-                tableHTML += `<tr><td>${type}</td><td>${range}</td></tr>`;
-            });
-            tableHTML += `<tr><td>Total</td><td>${quota.total.min}-${quota.total.max}</td></tr>`;
-            document.getElementById('dailyQuotaTable').innerHTML = tableHTML;
+    // Daily totals last 14 days
+    const days = [];
+    const totals = [];
+    const today = getToday();
+    for (let i = 13; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(today.getDate() - i);
+      const key = formatDate(d);
+      const entry = log.find((e) => e.date === key);
+      days.push(d.toLocaleDateString("en-IN", {
+        day: "numeric",
+        month: "short",
+      }));
+      totals.push(entry ? entry.total || 0 : 0);
+    }
 
-            document.getElementById('weeklySummary').innerHTML = checkWeekly();
-            getProgress();
+    const dailyCtx = document
+      .getElementById("dailyTotalsChart")
+      .getContext("2d");
+    if (dailyTotalsChart) dailyTotalsChart.destroy();
+    dailyTotalsChart = new Chart(dailyCtx, {
+      type: "bar",
+      data: {
+        labels: days,
+        datasets: [
+          {
+            label: "Problems solved",
+            data: totals,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+        },
+        scales: {
+          x: {
+            ticks: { color: "#a8adb8", font: { size: 9 } },
+            grid: { display: false },
+          },
+          y: {
+            ticks: { color: "#a8adb8", font: { size: 9 }, stepSize: 2 },
+            grid: { color: "rgba(255,255,255,0.06)" },
+            beginAtZero: true,
+          },
+        },
+      },
+    });
 
-            // Full log table
-            const log = loadLog();
-            const tbody = document.getElementById('logBody');
-            tbody.innerHTML = '';
-            log.slice(-30).forEach(entry => { // Last 30 days
-                const row = `<tr><td>${entry.date}</td><td>${entry.day}</td><td>${entry.E}</td><td>${entry.M}</td><td>${entry.H}</td><td>${entry.total}</td><td>${entry.notes || ''}</td></tr>`;
-                tbody.innerHTML += row;
-            });
+    // Difficulty split for current week
+    const { sums } = computeWeekSums(log);
+    const diffCtx = document
+      .getElementById("difficultyChart")
+      .getContext("2d");
+    if (difficultyChart) difficultyChart.destroy();
+    difficultyChart = new Chart(diffCtx, {
+      type: "bar",
+      data: {
+        labels: ["Easy", "Medium", "Hard"],
+        datasets: [
+          {
+            label: "This week",
+            data: [sums.E, sums.M, sums.H],
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+        },
+        scales: {
+          x: {
+            ticks: { color: "#a8adb8", font: { size: 9 } },
+            grid: { display: false },
+          },
+          y: {
+            ticks: { color: "#a8adb8", font: { size: 9 }, stepSize: 2 },
+            grid: { color: "rgba(255,255,255,0.06)" },
+            beginAtZero: true,
+          },
+        },
+      },
+    });
+  }
 
-            updateTodayDisplay();
-            checkDailyQuota(getDayName(today), todayCounts.E, todayCounts.M, todayCounts.H);
-        }
+  // === LOG TABLE ===
+  function updateLogTable() {
+    const log = loadLog();
+    const tbody = document.getElementById("logBody");
+    const emptyMsg = document.getElementById("logEmptyMsg");
+    const rangeLabel = document.getElementById("logRangeLabel");
 
-        // Reset all
-        function resetAllData() {
-            if (confirm('Reset ALL data? This is permanent!')) {
-                localStorage.removeItem(STORAGE_KEY);
-                todayCounts = { E: 0, M: 0, H: 0 };
-                updateUI();
-            }
-        }
+    tbody.innerHTML = "";
 
-        // Init
-        updateUI();
-        setInterval(updateUI, 60000); // Refresh minutely
-    </script>
+    if (!log.length) {
+      emptyMsg.style.display = "block";
+      rangeLabel.textContent = "No data";
+      return;
+    }
+    emptyMsg.style.display = "none";
+
+    const entries = showFullLog ? log : log.slice(-30);
+
+    entries.forEach((entry) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${entry.date}</td>
+        <td>${entry.day || ""}</td>
+        <td>${entry.E || 0}</td>
+        <td>${entry.M || 0}</td>
+        <td>${entry.H || 0}</td>
+        <td>${entry.total || 0}</td>
+        <td class="log-notes">${entry.notes || ""}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    rangeLabel.textContent = showFullLog ? "All days" : "Last 30 days";
+  }
+
+  // === BACKUP ===
+  async function copyBackup() {
+    const log = loadLog();
+    const text = JSON.stringify(log, null, 2);
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      try {
+        await navigator.clipboard.writeText(text);
+        alert("📋 Log copied to clipboard.");
+      } catch (e) {
+        console.error(e);
+        prompt("Copy your log manually:", text);
+      }
+    } else {
+      prompt("Copy your log manually:", text);
+    }
+  }
+
+  // === UI MASTER UPDATE ===
+  function updateUI() {
+    // date chip
+    const dateChip = document.getElementById("dateChip");
+    const today = getToday();
+    const formatted = today.toLocaleDateString("en-IN", {
+      weekday: "short",
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+    dateChip.innerHTML = `Today: <span class="chip-strong" id="currentDayName">${getDayName(
+      today
+    )}</span> &nbsp; ${formatted}`;
+
+    updateTodayDisplay();
+    checkDailyQuotaUI();
+    updateWeeklySummary();
+    updateStreakUI();
+    updateProjectionAndLifetime();
+    updateCharts();
+    updateLogTable();
+  }
+
+  // === EVENT LISTENERS ===
+  function attachEvents() {
+    // increment
+    document
+      .querySelectorAll(".increment-btn")
+      .forEach((btn) =>
+        btn.addEventListener("click", () =>
+          adjustCount(btn.dataset.type, +1)
+        )
+      );
+
+    // decrement
+    document
+      .querySelectorAll(".decrement-btn")
+      .forEach((btn) =>
+        btn.addEventListener("click", () =>
+          adjustCount(btn.dataset.type, -1)
+        )
+      );
+
+    document
+      .getElementById("resetTodayBtn")
+      .addEventListener("click", resetToday);
+
+    document
+      .getElementById("resetAllBtn")
+      .addEventListener("click", resetAllData);
+
+    document
+      .getElementById("saveNotesBtn")
+      .addEventListener("click", saveTodayNotes);
+
+    document
+      .getElementById("copyBackupBtn")
+      .addEventListener("click", copyBackup);
+
+    document.getElementById("logShow30").addEventListener("click", () => {
+      showFullLog = false;
+      updateLogTable();
+    });
+
+    document.getElementById("logShowAll").addEventListener("click", () => {
+      showFullLog = true;
+      updateLogTable();
+    });
+  }
+
+  // === INIT ===
+  attachEvents();
+  updateUI();
+  // auto-refresh once in a while in case date changes while page is open
+  setInterval(updateUI, 60_000);
+</script>
 </body>
 </html>
-```
