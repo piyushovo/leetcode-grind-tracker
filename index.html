@@ -1,73 +1,181 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LeetCode Grind Tracker 👑</title>
+    <title>LeetCode Grind Tracker - DUMPYDON 👑</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #1a1a1a; color: #fff; margin: 0; padding: 20px; max-width: 800px; margin: auto; }
-        h1 { text-align: center; color: #ffd700; }
-        .section { margin: 20px 0; padding: 15px; border: 1px solid #333; border-radius: 8px; background: #2a2a2a; }
-        input { width: 50px; margin: 0 5px; padding: 5px; background: #444; color: #fff; border: 1px solid #666; border-radius: 4px; }
-        button { padding: 8px 16px; background: #ffd700; color: #000; border: none; border-radius: 4px; cursor: pointer; margin: 5px; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: #1a1a1a; 
+            color: #fff; 
+            margin: 0; 
+            padding: 0; 
+            display: flex; 
+            height: 100vh; 
+            overflow: hidden;
+        }
+        .sidebar { 
+            width: 25%; 
+            background: #0d0d0d; 
+            padding: 20px; 
+            overflow-y: auto; 
+            border-right: 1px solid #333; 
+        }
+        .main { 
+            width: 75%; 
+            padding: 20px; 
+            overflow-y: auto; 
+        }
+        h1 { text-align: center; color: #ffd700; margin-bottom: 10px; }
+        h2 { color: #ffd700; }
+        .quote { 
+            font-style: italic; 
+            color: #ccc; 
+            margin: 10px 0; 
+            padding: 10px; 
+            background: #2a2a2a; 
+            border-radius: 4px; 
+        }
+        .schedule { 
+            background: #333; 
+            padding: 15px; 
+            border-radius: 4px; 
+            margin: 10px 0; 
+            font-size: 14px; 
+        }
+        .motivation { 
+            color: #ff6b6b; 
+            font-weight: bold; 
+            margin: 10px 0; 
+        }
+        .section { 
+            margin: 20px 0; 
+            padding: 15px; 
+            border: 1px solid #333; 
+            border-radius: 8px; 
+            background: #2a2a2a; 
+        }
+        button { 
+            padding: 8px 16px; 
+            background: #ffd700; 
+            color: #000; 
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            margin: 5px; 
+            font-weight: bold;
+        }
         button:hover { background: #ffed4a; }
+        .increment-btn { 
+            background: #4CAF50; 
+            color: white; 
+            padding: 10px 20px; 
+            font-size: 18px; 
+            width: 60px; 
+        }
+        .increment-btn:hover { background: #45a049; }
+        .reset-btn { 
+            background: #f44336; 
+            color: white; 
+            padding: 10px 20px; 
+        }
+        .reset-btn:hover { background: #da190b; }
+        .today-display { 
+            font-size: 24px; 
+            text-align: center; 
+            margin: 10px 0; 
+            padding: 15px; 
+            background: #333; 
+            border-radius: 4px; 
+        }
         table { width: 100%; border-collapse: collapse; margin: 10px 0; }
         th, td { border: 1px solid #666; padding: 8px; text-align: center; }
         .alert { padding: 10px; margin: 10px 0; border-radius: 4px; }
         .die { background: #ff4444; color: #fff; }
         .king { background: #44ff44; color: #000; }
         .under { background: #ffaa00; color: #000; }
+        @media (max-width: 768px) { 
+            body { flex-direction: column; } 
+            .sidebar { width: 100%; height: auto; } 
+            .main { width: 100%; } 
+        }
     </style>
 </head>
 <body>
-    <h1>LeetCode Grind Tracker 👑</h1>
-    <p style="text-align: center;">Started: Nov 23, 2025 | Target: 184E / 382M / 142H by Feb 2026 | Weekly Min: 32 (30 OK, <28 DIE)</p>
-
-    <!-- Daily Log Form -->
-    <div class="section">
-        <h2>📝 Log Today's Grind</h2>
-        <form id="logForm">
-            <label>E: <input type="number" id="eInput" min="0" value="0"></label>
-            <label>M: <input type="number" id="mInput" min="0" value="0"></label>
-            <label>H: <input type="number" id="hInput" min="0" value="0"></label>
-            <button type="submit">Log It 🔥</button>
-            <button type="button" onclick="resetData()">Reset All Data</button>
-        </form>
-        <div id="dailyAlert"></div>
+    <!-- Sidebar: Reminders & Schedule -->
+    <div class="sidebar">
+        <h2>Daily Rules 👑</h2>
+        <div class="quote">"You should be absolutely focused on what you do. Everything else is a waste of time."</div>
+        <div class="quote">"As the time goes by, An eye for an eye. We in this together, son, your beef is mine."</div>
+        
+        <div class="schedule">
+            <strong>Sun:</strong> 6-7. E{E}MMMHH<br>
+            <strong>Mon:</strong> 5. EMMMH<br>
+            <strong>Tue:</strong> 4. EMMH<br>
+            <strong>Wed:</strong> 5. EMMMH<br>
+            <strong>Thu:</strong> 4. EMMH<br>
+            <strong>Fri:</strong> 2-3. M{M}H<br>
+            <strong>Sat:</strong> 6. EMMMMH<br><br>
+            <strong>Weekly:</strong> 6-7E 18-19M 8H<br>
+            <strong>Monthly:</strong> 28E 75M 32H<br><br>
+            <span class="motivation">Total: 32-34/week. Min 30 (barely OK). Below 28? DIE.</span>
+        </div>
     </div>
 
-    <!-- Current Day Quota -->
-    <div class="section">
-        <h2>📊 Today's Quota (<span id="currentDay"></span>)</h2>
-        <table id="dailyQuotaTable">
-            <tr><th>Type</th><th>Min-Max</th></tr>
-        </table>
-    </div>
+    <!-- Main Content -->
+    <div class="main">
+        <h1>LeetCode Grind Tracker - DUMPYDON 👑</h1>
+        <p style="text-align: center;">Started: Nov 23, 2025 | Target: 184E / 382M / 142H by Feb 2026 | Weekly Min: 32 (30 OK, <28 DIE)</p>
 
-    <!-- Progress Tables -->
-    <div class="section">
-        <h2>🏆 Cumulative Progress</h2>
-        <table id="cumulativeTable">
-            <tr><th>E</th><th>M</th><th>H</th><th>Total</th></tr>
-        </table>
-    </div>
+        <!-- Today's Increment Buttons -->
+        <div class="section">
+            <h2>📝 Today's Grind (<span id="currentDay"></span>)</h2>
+            <div class="today-display" id="todayDisplay">Today's Solved: 0E 0M 0H</div>
+            <div style="text-align: center;">
+                <button class="increment-btn" onclick="increment('E')">+E</button>
+                <button class="increment-btn" onclick="increment('M')">+M</button>
+                <button class="increment-btn" onclick="increment('H')">+H</button>
+                <br><br>
+                <button class="reset-btn" onclick="resetToday()">Reset Today</button>
+            </div>
+            <div id="dailyAlert"></div>
+        </div>
 
-    <div class="section">
-        <h2>📈 Last Week Summary</h2>
-        <div id="weeklySummary"></div>
-    </div>
+        <!-- Current Day Quota -->
+        <div class="section">
+            <h2>📊 Today's Quota</h2>
+            <table id="dailyQuotaTable">
+                <tr><th>Type</th><th>Min-Max</th></tr>
+            </table>
+        </div>
 
-    <div class="section">
-        <h2>🔮 14-Week Projection</h2>
-        <div id="projection"></div>
-    </div>
+        <!-- Progress Tables -->
+        <div class="section">
+            <h2>🏆 Cumulative Progress</h2>
+            <table id="cumulativeTable">
+                <tr><th>E</th><th>M</th><th>H</th><th>Total</th></tr>
+            </table>
+        </div>
 
-    <div class="section">
-        <h2>📋 Full Log</h2>
-        <table id="fullLogTable">
-            <thead><tr><th>Date</th><th>Day</th><th>E</th><th>M</th><th>H</th><th>Total</th><th>Notes</th></tr></thead>
-            <tbody id="logBody"></tbody>
-        </table>
+        <div class="section">
+            <h2>📈 Last Week Summary</h2>
+            <div id="weeklySummary"></div>
+        </div>
+
+        <div class="section">
+            <h2>🔮 14-Week Projection</h2>
+            <div id="projection"></div>
+        </div>
+
+        <div class="section">
+            <h2>📋 Full Log</h2>
+            <table id="fullLogTable">
+                <thead><tr><th>Date</th><th>Day</th><th>E</th><th>M</th><th>H</th><th>Total</th><th>Notes</th></tr></thead>
+                <tbody id="logBody"></tbody>
+            </table>
+        </div>
     </div>
 
     <script>
@@ -109,6 +217,50 @@
         }
         function getDayName(date) {
             return date.toLocaleDateString('en-US', { weekday: 'short' });
+        }
+
+        // Increment function
+        let todayCounts = { E: 0, M: 0, H: 0 };
+        function increment(type) {
+            const today = getToday().toISOString().split('T')[0];
+            const log = loadLog();
+            const existing = log.find(entry => entry.date === today);
+            if (existing) {
+                existing[type]++;
+                existing.total = existing.E + existing.M + existing.H;
+            } else {
+                const newEntry = { date: today, day: getDayName(getToday()), E: 0, M: 0, H: 0, total: 0, notes: '' };
+                newEntry[type]++;
+                newEntry.total = newEntry.E + newEntry.M + newEntry.H;
+                log.push(newEntry);
+                log.sort((a,b) => new Date(a.date) - new Date(b.date));
+            }
+            saveLog(log);
+            updateTodayDisplay();
+            checkDailyQuota(getDayName(getToday()), todayCounts.E, todayCounts.M, todayCounts.H); // Update alert
+            updateUI();
+        }
+
+        // Update today's display
+        function updateTodayDisplay() {
+            const today = getToday().toISOString().split('T')[0];
+            const log = loadLog();
+            const entry = log.find(e => e.date === today);
+            todayCounts = entry ? { E: entry.E, M: entry.M, H: entry.H } : { E: 0, M: 0, H: 0 };
+            document.getElementById('todayDisplay').textContent = `Today's Solved: ${todayCounts.E}E ${todayCounts.M}M ${todayCounts.H}H`;
+        }
+
+        // Reset today
+        function resetToday() {
+            if (confirm('Reset today\'s counts?')) {
+                const today = getToday().toISOString().split('T')[0];
+                let log = loadLog();
+                log = log.filter(entry => entry.date !== today);
+                saveLog(log);
+                todayCounts = { E: 0, M: 0, H: 0 };
+                document.getElementById('todayDisplay').textContent = `Today's Solved: 0E 0M 0H`;
+                updateUI();
+            }
         }
 
         // Check daily quota
@@ -222,37 +374,16 @@
                 const row = `<tr><td>${entry.date}</td><td>${entry.day}</td><td>${entry.E}</td><td>${entry.M}</td><td>${entry.H}</td><td>${entry.total}</td><td>${entry.notes || ''}</td></tr>`;
                 tbody.innerHTML += row;
             });
+
+            updateTodayDisplay();
+            checkDailyQuota(getDayName(today), todayCounts.E, todayCounts.M, todayCounts.H);
         }
 
-        // Form submit
-        document.getElementById('logForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const eVal = parseInt(document.getElementById('eInput').value) || 0;
-            const mVal = parseInt(document.getElementById('mInput').value) || 0;
-            const hVal = parseInt(document.getElementById('hInput').value) || 0;
-            const today = getToday().toISOString().split('T')[0];
-            const dayName = getDayName(getToday());
-
-            const log = loadLog();
-            // Check if today already logged (update if yes)
-            const existing = log.find(entry => entry.date === today);
-            if (existing) {
-                existing.E = eVal; existing.M = mVal; existing.H = hVal; existing.total = eVal + mVal + hVal;
-            } else {
-                log.push({ date: today, day: dayName, E: eVal, M: mVal, H: hVal, total: eVal + mVal + hVal, notes: '' });
-                log.sort((a,b) => new Date(a.date) - new Date(b.date));
-            }
-            saveLog(log);
-
-            checkDailyQuota(dayName, eVal, mVal, hVal);
-            updateUI();
-            document.getElementById('logForm').reset();
-        });
-
-        // Reset
-        function resetData() {
-            if (confirm('Reset all logs?')) {
+        // Reset all
+        function resetAllData() {
+            if (confirm('Reset ALL data? This is permanent!')) {
                 localStorage.removeItem(STORAGE_KEY);
+                todayCounts = { E: 0, M: 0, H: 0 };
                 updateUI();
             }
         }
@@ -263,3 +394,4 @@
     </script>
 </body>
 </html>
+```
